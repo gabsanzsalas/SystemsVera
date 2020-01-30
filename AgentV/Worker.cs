@@ -5,16 +5,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MQTTnet;
 
 namespace AgentV
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
+        MqttApplicationMessage message;
 
         public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
+            
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -22,7 +25,7 @@ namespace AgentV
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(1000, stoppingToken);
+                await Task.Delay(5000, stoppingToken);
             }
         }
     }
