@@ -55,12 +55,14 @@ namespace AgentV
             MqttClientAuthenticateResult result = await mqttClient.ConnectAsync(SetConnectionOptions(false, "1234", "camotemqtt.westeurope.azurecontainer.io", 1883, "veraplus", "A2uhXG4GLOGfHp47daVA"), CancellationToken.None);//cleanSession
             while (!stoppingToken.IsCancellationRequested)
             {
-                string devices = Get<string>();
-                Console.WriteLine(devices);
-                Device[] devicess = Get<Device[]>();
-                Console.WriteLine(JsonConvert.SerializeObject(devicess));
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(5000, stoppingToken);
+             //   string devices = Get<string>();
+             //   Console.WriteLine(devices);
+                Device[] devices = Get<Device[]>();
+             //   Console.WriteLine();
+                
+                Publish("45fea213", JsonConvert.SerializeObject(devices));
+                _logger.LogInformation("Worker published at: {time}", DateTimeOffset.Now);
+                await Task.Delay(10000, stoppingToken);
             }
         }
 
@@ -87,9 +89,9 @@ namespace AgentV
                 .Build();
 
                 await mqttClient.PublishAsync(message, CancellationToken.None);
-                await Task.Delay(10000, stoppingToken);
-            }
-        }
+                
+         }
+        
 
         /// <summary>  
         /// Common method for making GET calls  
