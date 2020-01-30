@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
+using Microsoft.EntityFrameworkCore;
 
 namespace AgentV
 {
@@ -13,6 +14,7 @@ namespace AgentV
     {
         private readonly ILogger<Worker> _logger;
         MqttApplicationMessage message;
+        DbContext dbContext;
 
         public Worker(ILogger<Worker> logger)
         {
