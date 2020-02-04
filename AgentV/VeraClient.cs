@@ -10,13 +10,13 @@ namespace AgentV
     class VeraClient
     {
         private readonly HttpClient _httpClient;
-        private Uri _BaseEndpoint { get; set; }
+        private Uri BaseEndpoint { get; set; }
 
 
         public VeraClient(Uri baseEndpoint)
         {
             _httpClient = new HttpClient();
-            _BaseEndpoint = baseEndpoint;
+            BaseEndpoint = baseEndpoint;
         }
 
         /// <summary>  
@@ -25,7 +25,7 @@ namespace AgentV
         public T Get<T>()
         {
 
-            HttpResponseMessage response = _httpClient.GetAsync(_BaseEndpoint, HttpCompletionOption.ResponseHeadersRead).Result;
+            HttpResponseMessage response = _httpClient.GetAsync(BaseEndpoint, HttpCompletionOption.ResponseHeadersRead).Result;
             var data = response.Content.ReadAsStringAsync().Result;
 
             if (!response.IsSuccessStatusCode)
