@@ -46,3 +46,7 @@ bld/
 docker-compose.single.yml
 docker-compose.single.override.yml
 
+/.vs/SystemsVera/v16
+/.vs/slnx.sqlite
+/.vs/SystemsVera/v16/.suo
+/.vs/VSWorkspaceState.json
