@@ -2,25 +2,17 @@ using MQTTnet;
 
 using MQTTnet.Client;
 
-using Microsoft.Extensions.DependencyInjection;
-using MQTTnet;
-using MQTTnet.Client;
-using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Options;
-using MQTTnet.Client.Publishing;
-using MQTTnet.Client.Subscribing;
-using MQTTnet.Protocol;
+using System;
+using System.Threading;
 
 namespace AgentV
 {
     public class MqttClient
     {
-        MqttApplicationMessage message;
-
         private IMqttClient mqttClient;
-        private MqttFactory factory = new MqttFactory();
 
-        private IMqttClientOptions SetConnectionOptions(bool cleanSession,
+        public IMqttClientOptions SetConnectionOptions(bool cleanSession,
             String clientId, String url, int port, String user, String password)
         {
             var options = new MqttClientOptionsBuilder()
