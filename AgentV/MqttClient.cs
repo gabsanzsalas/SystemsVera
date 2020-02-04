@@ -21,7 +21,7 @@ namespace AgentV
         private MqttFactory factory = new MqttFactory();
 
         private IMqttClientOptions SetConnectionOptions(bool cleanSession,
-            String clientId, String url, int port, String user, String password)
+            string clientId, string url, int port, string user, string password)
         {
             var options = new MqttClientOptionsBuilder()
             .WithClientId(clientId)
