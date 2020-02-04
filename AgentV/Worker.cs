@@ -33,14 +33,9 @@ namespace AgentV
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        MqttApplicationMessage message;
         DbContext dbContext;
         protected readonly HttpClient _httpClient;
         protected Uri BaseEndpoint { get; set; }
-
-        private IMqttClient mqttClient;// = new IMqttClient("camotemqtt.westeurope.azurecontainer.io", "veraplus",
-                                       //"A2uhXG4GLOGfHp47daVA", 2, "CLIENTID"); //LADI
-        private MqttFactory factory = new MqttFactory();//LADI
        
         public Worker(ILogger<Worker> logger)
         {
@@ -64,57 +59,6 @@ namespace AgentV
                 _logger.LogInformation("Worker published at: {time}", DateTimeOffset.Now);
                 await Task.Delay(10000, stoppingToken);
             }
-        }
-
-        private IMqttClientOptions SetConnectionOptions(bool cleanSession,
-            String clientId, String url, int port, String user, String password)
-        {
-            var options = new MqttClientOptionsBuilder()
-            .WithClientId(clientId)
-            .WithTcpServer(url, port)
-            .WithCredentials(user, password)
-            .WithCleanSession(cleanSession)
-            .Build();
-
-            return options;
-        }//LADI
-
-        public async void Publish(string topic, string payload)////
-        {
-             MqttApplicationMessage message = new MqttApplicationMessageBuilder()
-                .WithTopic(topic)
-                .WithPayload(payload)
-                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
-                .WithRetainFlag(false)
-                .Build();
-
-                await mqttClient.PublishAsync(message, CancellationToken.None);
-                
-         }
-        
-
-        /// <summary>  
-        /// Common method for making GET calls  
-        /// </summary>  
-        protected T Get<T>()
-        {
-
-            HttpResponseMessage response = _httpClient.GetAsync(BaseEndpoint, HttpCompletionOption.ResponseHeadersRead).Result;
-            var data = response.Content.ReadAsStringAsync().Result;
-
-            if (!response.IsSuccessStatusCode)
-                throw new Exception(data);
-
-            return ConvertResult<T>(data);
-        }
-
-        private T ConvertResult<T>(string data)
-        {
-            data = JObject.Parse(data)["devices"].ToString();
-            if (typeof(T) == typeof(string))
-                return (T)Convert.ChangeType(data, typeof(T));
-            else
-                return JsonConvert.DeserializeObject<T>(data);
         }
     }
 }
