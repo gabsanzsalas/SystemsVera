@@ -22,12 +22,12 @@ namespace AgentV
         private IMqttClient imqttClient;
         private MqttClient _mqttClient;
 
-        public Worker(ILogger<Worker> logger)
+        public Worker(ILogger<Worker> logger, VeraClient veraClient, MqttClient mqttClient)
         {
             _logger = logger;
-            _veraClient = new VeraClient(new Uri("http://10.0.2.134:3480/data_request?id=user_data"));
+            _veraClient = veraClient;
             factory = new MqttFactory();
-            _mqttClient = new MqttClient();
+            _mqttClient = mqttClient;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

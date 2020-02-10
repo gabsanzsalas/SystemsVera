@@ -7,16 +7,18 @@ using Newtonsoft.Json;
 
 namespace AgentV
 {
-    class VeraClient
+    public class VeraClient
     {
         private readonly HttpClient _httpClient;
         private Uri BaseEndpoint { get; set; }
+        private AgentVeraSettings agentVeraSettings;
 
-
-        public VeraClient(Uri baseEndpoint)
+        public VeraClient(AgentVeraSettings agentVeraSettings)
         {
             _httpClient = new HttpClient();
-            BaseEndpoint = baseEndpoint;
+            
+            this.agentVeraSettings = agentVeraSettings;
+            BaseEndpoint = new Uri(agentVeraSettings.baseEndpoint);
         }
 
         /// <summary>  
