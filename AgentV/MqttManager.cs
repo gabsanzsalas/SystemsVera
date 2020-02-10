@@ -1,10 +1,8 @@
-using Microsoft.Extensions.DependencyInjection;
 using MQTTnet;
 
 using MQTTnet.Client;
-using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Options;
-using Newtonsoft.Json; //
+using Newtonsoft.Json;
 using System;
 using System.Text;
 using System.Threading;
@@ -14,17 +12,18 @@ namespace AgentV
 {
     public class MqttManager
     {
-        private const string topicSubscription = ".request";
+        private const string topicSubscription = ".response";
         private IMqttClient mqttClient;
         private AgentVeraSettings agentVeraSettings;
         private IMqttClientOptions mqttOptions;
-        private ApiClient apiclient;
+        private ApiClient apiClient;
 
-        public MqttManager(AgentVeraSettings agentVeraSettings, MqttFactory mqttFactory)
+        public MqttManager(AgentVeraSettings agentVeraSettings, MqttFactory mqttFactory, ApiClient apiClient)
         {
             this.agentVeraSettings = agentVeraSettings;
             SetConnectionOptions();
             mqttClient = mqttFactory.CreateMqttClient();
+            this.apiClient = apiClient;
             SubscribeMqttClientAsync();
         }
 
@@ -41,20 +40,22 @@ namespace AgentV
                     try
                     {
                         var message = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-
-                        if (message == "GetDevices")
+                        Message messageObject = JsonConvert.DeserializeObject<Message>(message);
+                        switch (messageObject.commando)
                         {
-                            GetDevices();
+                            case "GetDevices":
+                                Device[] devices = apiClient.GetDevices();
+                                this.Publish(agentVeraSettings.topic + topicSubscription, JsonConvert.SerializeObject(devices));
+                                break;
+                            case "GetStatus":
+                                Status[] status = apiClient.GetStatus();
+                                this.Publish(agentVeraSettings.topic + topicSubscription, JsonConvert.SerializeObject(status));
+                                break;
                         }
-                        else if (message == "GetStatus")
-                        {
-                            //Get Status();
-                        }
-                        else 
-                        {
-                            ///Schedule
-                        }
-
+                       
+                        ///Get devices()
+                        ///Get Status() 
+                        ///Schedule 
                     }
                     catch (Exception ex)
                     {
@@ -99,14 +100,5 @@ namespace AgentV
                      .WithAtLeastOnceQoS().Build());
 
         }
-
-        private Device[] GetDevices()
-        {
-            return this.apiclient.GetDevices();
-        }
-
-        //private Device GetStatus(int id) { 
-
-        //}
     }
 }

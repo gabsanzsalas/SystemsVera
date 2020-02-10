@@ -10,6 +10,8 @@ namespace AgentV
     public class ApiClient
     {
         private const string _constantGetDevices = "devices";
+        private const string _constantUserData = "user_data";
+        private const string _constantStatus = "status";
         private readonly HttpClient _httpClient;
 
         private AgentVeraSettings agentVeraSettings;
@@ -23,11 +25,11 @@ namespace AgentV
         /// <summary>  
         /// Common method for making GET calls  
         /// </summary>  
-        private T Get<T>(string objectkey)
+        private T Get<T>(string id, string objectkey=null)
         {
 
             HttpResponseMessage response = _httpClient.GetAsync(
-                new Uri(agentVeraSettings.baseEndpoint)
+                new Uri(agentVeraSettings.baseEndpoint + id)
                 , HttpCompletionOption.ResponseHeadersRead).Result;
             var data = response.Content.ReadAsStringAsync().Result;
 
@@ -37,10 +39,12 @@ namespace AgentV
             return ConvertResult<T>(data, objectkey);
         }
 
-        private T ConvertResult<T>(string data, string objectkey)
+        private T ConvertResult<T>(string data, string objectkey=null)
         {
-
-            data = JObject.Parse(data)[objectkey].ToString();
+            if(objectkey!=null)
+                data = JObject.Parse(data)[objectkey].ToString();
+            else
+                data = JObject.Parse(data).ToString();
             if (typeof(T) == typeof(string))
                 return (T)Convert.ChangeType(data, typeof(T));
             else
@@ -49,10 +53,12 @@ namespace AgentV
 
         public Device[] GetDevices()
         {
-            return this.Get<Device[]>(_constantGetDevices);
-
+            return this.Get<Device[]>(_constantUserData, _constantGetDevices);
         }
 
-
+        public Status[] GetStatus()
+        {
+            return this.Get<Status[]>(_constantStatus);
+        }
     }
 }

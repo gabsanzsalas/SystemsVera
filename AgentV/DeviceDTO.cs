@@ -288,4 +288,10 @@ namespace AgentV
         public string onDashboard { get; set; }
         public string no_child_sync { get; set; }
     }
+
+    public class Message
+    {
+        public string commando { get; set; }
+        public string[] parameters { get; set; }
+    }
 }
