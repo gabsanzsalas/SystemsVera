@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace AgentV
 {
-    class Scheduler
+    public class Scheduler
     {
         private List<SchedulerItem> scheduler;
 
@@ -26,7 +26,7 @@ namespace AgentV
                 scheduler = new List<SchedulerItem>();
         }
 
-        public void AddScheduleItem(int id, int interval, DateTime lastDate)
+        public void AddScheduleItem(int id, int interval)
         {
             scheduler.Add(new SchedulerItem() { Id = id, Interval = interval, LastDate = lastDate });
         }

@@ -26,6 +26,7 @@ namespace AgentV
                     services.AddTransient<ApiClient>();
                     services.AddTransient<MqttFactory>();
                     services.AddTransient<MqttManager>();
+                    services.AddTransient<Scheduler>();
                     services.AddHostedService<Worker>();
                 });
     }
