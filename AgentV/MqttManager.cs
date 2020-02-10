@@ -12,7 +12,8 @@ namespace AgentV
 {
     public class MqttManager
     {
-        private const string topicSubscription = ".response";
+        private const string topicPublish = ".response";
+        private const string topicSubscription = ".request";
         private IMqttClient mqttClient;
         private AgentVeraSettings agentVeraSettings;
         private IMqttClientOptions mqttOptions;
@@ -45,11 +46,11 @@ namespace AgentV
                         {
                             case "GetDevices":
                                 Device[] devices = apiClient.GetDevices();
-                                this.Publish(agentVeraSettings.topic + topicSubscription, JsonConvert.SerializeObject(devices));
+                                this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(devices));
                                 break;
                             case "GetStatus":
                                 Status[] status = apiClient.GetStatus();
-                                this.Publish(agentVeraSettings.topic + topicSubscription, JsonConvert.SerializeObject(status));
+                                this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(status));
                                 break;
                         }
                        

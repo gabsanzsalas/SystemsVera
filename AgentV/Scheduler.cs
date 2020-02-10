@@ -28,7 +28,14 @@ namespace AgentV
 
         public void AddScheduleItem(int id, int interval)
         {
-            scheduler.Add(new SchedulerItem() { Id = id, Interval = interval, LastDate = lastDate });
+            scheduler.Add(new SchedulerItem() { Id = id, Interval = interval, LastDate = DateTime.Now });
+            WriteToFile();
+        }
+
+        public void ChangeLastDate(int id)
+        {
+            scheduler.Where(x => x.Id == id).FirstOrDefault().LastDate = DateTime.Now;
+            WriteToFile();
         }
 
         public void WriteToFile()
