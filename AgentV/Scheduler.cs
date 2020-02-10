@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace AgentV
 {
-    class Scheduler
+    public class Scheduler
     {
         private List<SchedulerItem> scheduler;
 
@@ -38,7 +38,7 @@ namespace AgentV
             WriteToFile();
         }
 
-        public void WriteToFile()
+        private void WriteToFile()
         {
             using (StreamWriter file = File.CreateText("schedule.json"))
             {
@@ -53,7 +53,7 @@ namespace AgentV
         }
     }
 
-    class SchedulerItem
+    public class SchedulerItem
     {
         public int Id { get; set; }
         public int Interval { get; set; }

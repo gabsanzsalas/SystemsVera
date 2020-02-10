@@ -18,17 +18,19 @@ namespace AgentV
         private AgentVeraSettings agentVeraSettings;
         private IMqttClientOptions mqttOptions;
         private ApiClient apiClient;
+        private Scheduler scheduler;
 
-        public MqttManager(AgentVeraSettings agentVeraSettings, MqttFactory mqttFactory, ApiClient apiClient)
+        public MqttManager(AgentVeraSettings agentVeraSettings, MqttFactory mqttFactory, ApiClient apiClient, Scheduler scheduler)
         {
             this.agentVeraSettings = agentVeraSettings;
             SetConnectionOptions();
             mqttClient = mqttFactory.CreateMqttClient();
             this.apiClient = apiClient;
+            this.scheduler = scheduler;
             SubscribeMqttClientAsync();
         }
 
-       
+
 
 
         private async Task SubscribeMqttClientAsync()
@@ -52,8 +54,11 @@ namespace AgentV
                                 Status[] status = apiClient.GetStatus();
                                 this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(status));
                                 break;
+                            case "ScheduleStatus":
+                                scheduler.AddScheduleItem(messageObject.parameters.deviceId, messageObject.parameters.interval);
+                                break;
                         }
-                       
+
                         ///Get devices()
                         ///Get Status() 
                         ///Schedule 
@@ -81,25 +86,38 @@ namespace AgentV
                 Connect();
 
 
-             MqttApplicationMessage message = new MqttApplicationMessageBuilder()
-                .WithTopic(topic)
-                .WithPayload(payload)
-                .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
-                .WithRetainFlag(false)
-                .Build();
+            MqttApplicationMessage message = new MqttApplicationMessageBuilder()
+               .WithTopic(topic)
+               .WithPayload(payload)
+               .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+               .WithRetainFlag(false)
+               .Build();
 
-                await mqttClient.PublishAsync(message, CancellationToken.None);
-                
-         }
+            await mqttClient.PublishAsync(message, CancellationToken.None);
+
+        }
 
         async internal void Connect()
         {
             await mqttClient.ConnectAsync(mqttOptions, CancellationToken.None);
 
             var result = await mqttClient.SubscribeAsync(new TopicFilterBuilder()
-                     .WithTopic(agentVeraSettings.topic+ topicSubscription)
+                     .WithTopic(agentVeraSettings.topic + topicSubscription)
                      .WithAtLeastOnceQoS().Build());
 
         }
+    }
+
+    public class Message
+    {
+        public string commando { get; set; }
+        public Parameters parameters { get; set; }
+    }
+
+    public class Parameters
+    {
+        public int deviceId { get; set; }
+        public int interval { get; set; }
+
     }
 }
