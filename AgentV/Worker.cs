@@ -17,6 +17,10 @@ namespace AgentV
         private AgentVeraSettings _agentVeraSettings;
         private Scheduler _scheduler;
         private List<SchedulerItem> schedulerList;
+        private SchedulerItem item = null;
+        private DateTime lastDate;
+        private int id;
+        private int intervall;
 
         public Worker(ILogger<Worker> logger, ApiClient veraClient, MqttManager mqttManager, AgentVeraSettings agentVeraSettings, Scheduler scheduler)
         {
@@ -41,21 +45,20 @@ namespace AgentV
 
             while (true)
             {
-                SchedulerItem item = null;
                 schedulerList = _scheduler.GetScheduler();
-                foreach(SchedulerItem element in schedulerList)
+                foreach (SchedulerItem element in schedulerList)
                 {
                     item = element;
-                }
-                DateTime lastDate = item.LastDate;
-                int id = item.Id;
-                int intervall = item.Interval;
-                double lastDateInMillis = lastDate.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                double NowInMillis = DateTime.Now.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                if (intervall * 1000 + lastDateInMillis < NowInMillis)
-                {
-                    lastDate = DateTime.Now;
-                    addScheduleItem(id, intervall, lastDate);
+                    lastDate = item.LastDate;
+                    id = item.Id;
+                    intervall = item.Interval;
+                    DateTime lastDateInMillis = lastDate.AddMilliseconds(intervall * 1000);// ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                    //double NowInMillis = DateTime.Now; //ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                    if (lastDateInMillis < DateTime.Now)
+                    {
+                        //lastDate = DateTime.Now;
+                        _scheduler.AddScheduleItem(id, intervall);
+                    }
                 }
             }
         }
