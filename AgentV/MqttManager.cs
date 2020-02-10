@@ -4,6 +4,7 @@ using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Options;
+using Newtonsoft.Json; //
 using System;
 using System.Text;
 using System.Threading;
@@ -17,6 +18,7 @@ namespace AgentV
         private IMqttClient mqttClient;
         private AgentVeraSettings agentVeraSettings;
         private IMqttClientOptions mqttOptions;
+        private ApiClient apiclient;
 
         public MqttManager(AgentVeraSettings agentVeraSettings, MqttFactory mqttFactory)
         {
@@ -39,9 +41,20 @@ namespace AgentV
                     try
                     {
                         var message = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-                        ///Get devices()
-                        ///Get Status() 
-                        ///Schedule 
+
+                        if (message == "GetDevices")
+                        {
+                            GetDevices();
+                        }
+                        else if (message == "GetStatus")
+                        {
+                            //Get Status();
+                        }
+                        else 
+                        {
+                            ///Schedule
+                        }
+
                     }
                     catch (Exception ex)
                     {
@@ -86,5 +99,14 @@ namespace AgentV
                      .WithAtLeastOnceQoS().Build());
 
         }
+
+        private Device[] GetDevices()
+        {
+            return this.apiclient.GetDevices();
+        }
+
+        //private Device GetStatus(int id) { 
+
+        //}
     }
 }

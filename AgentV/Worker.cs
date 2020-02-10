@@ -38,5 +38,20 @@ namespace AgentV
                 await Task.Delay(10000, stoppingToken);
             }
         }
+
+        public Schedule(SchedulerItem list)
+        {
+            
+            while (true)
+            {
+                double lastDateInMillis = lastDate.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                double NowInMillis = DateTime.Now.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                if (intervall * 1000 + lastDateInMillis < NowInMillis)
+                {
+                    lastDate = DateTime.Now;
+                    addScheduleItem(id, intervall, lastDate);
+                }
+            }
+        }
     }
 }
