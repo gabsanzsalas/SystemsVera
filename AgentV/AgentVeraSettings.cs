@@ -19,5 +19,7 @@ namespace AgentV
         public string user { get; set; }
 
         public string password { get; set; }
+
+        public bool cleanSession { get; set; }
     }
 }

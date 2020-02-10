@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MQTTnet;
 
 namespace AgentV
 {
@@ -22,8 +23,9 @@ namespace AgentV
                     IConfiguration configuration = hostContext.Configuration;
                     AgentVeraSettings alarmSettings = configuration.Get<AgentVeraSettings>();
                     services.AddSingleton(alarmSettings);
-                    services.AddTransient<VeraClient>();
-                    services.AddTransient<MqttClient>();
+                    services.AddTransient<ApiClient>();
+                    services.AddTransient<MqttFactory>();
+                    services.AddTransient<MqttManager>();
                     services.AddHostedService<Worker>();
                 });
     }

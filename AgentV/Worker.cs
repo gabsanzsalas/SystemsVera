@@ -17,28 +17,23 @@ namespace AgentV
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly VeraClient _veraClient;
-        private readonly MqttFactory factory;
-        private IMqttClient imqttClient;
-        private MqttClient _mqttClient;
+        private readonly ApiClient _apiClient;
+        private MqttManager _mqttManager;
 
-        public Worker(ILogger<Worker> logger, VeraClient veraClient, MqttClient mqttClient)
+        public Worker(ILogger<Worker> logger, ApiClient veraClient, MqttManager mqttManager)
         {
             _logger = logger;
-            _veraClient = veraClient;
-            factory = new MqttFactory();
-            _mqttClient = mqttClient;
+            _apiClient = veraClient;
+            _mqttManager = mqttManager;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            imqttClient = factory.CreateMqttClient();
-            _mqttClient.ConnectAndSet();
+            
             while (!stoppingToken.IsCancellationRequested)
             {
-                Device[] devices = _veraClient.Get<Device[]>();
-                
-                _mqttClient.Publish("45fea213", JsonConvert.SerializeObject(devices));
+                Device[] devices = _apiClient.GetDevices();
+                _mqttManager.Publish("45fea213.response", JsonConvert.SerializeObject(devices));
                 _logger.LogInformation("Worker published at: {time}", DateTimeOffset.Now);
                 await Task.Delay(10000, stoppingToken);
             }
