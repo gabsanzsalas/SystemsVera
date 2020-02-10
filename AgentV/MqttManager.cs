@@ -1,9 +1,8 @@
-using Microsoft.Extensions.DependencyInjection;
 using MQTTnet;
 
 using MQTTnet.Client;
-using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Options;
+using Newtonsoft.Json;
 using System;
 using System.Text;
 using System.Threading;
@@ -13,16 +12,18 @@ namespace AgentV
 {
     public class MqttManager
     {
-        private const string topicSubscription = ".request";
+        private const string topicSubscription = ".response";
         private IMqttClient mqttClient;
         private AgentVeraSettings agentVeraSettings;
         private IMqttClientOptions mqttOptions;
+        private ApiClient apiClient;
 
-        public MqttManager(AgentVeraSettings agentVeraSettings, MqttFactory mqttFactory)
+        public MqttManager(AgentVeraSettings agentVeraSettings, MqttFactory mqttFactory, ApiClient apiClient)
         {
             this.agentVeraSettings = agentVeraSettings;
             SetConnectionOptions();
             mqttClient = mqttFactory.CreateMqttClient();
+            this.apiClient = apiClient;
             SubscribeMqttClientAsync();
         }
 
@@ -39,6 +40,19 @@ namespace AgentV
                     try
                     {
                         var message = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                        Message messageObject = JsonConvert.DeserializeObject<Message>(message);
+                        switch (messageObject.commando)
+                        {
+                            case "GetDevices":
+                                Device[] devices = apiClient.GetDevices();
+                                this.Publish(agentVeraSettings.topic + topicSubscription, JsonConvert.SerializeObject(devices));
+                                break;
+                            case "GetStatus":
+                                Status[] status = apiClient.GetStatus();
+                                this.Publish(agentVeraSettings.topic + topicSubscription, JsonConvert.SerializeObject(status));
+                                break;
+                        }
+                       
                         ///Get devices()
                         ///Get Status() 
                         ///Schedule 
