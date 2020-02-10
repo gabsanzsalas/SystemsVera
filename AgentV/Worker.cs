@@ -33,7 +33,7 @@ namespace AgentV
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             imqttClient = factory.CreateMqttClient();
-            MqttClientAuthenticateResult result = await imqttClient.ConnectAsync(_mqttClient.SetConnectionOptions(false, "1234", "camotemqtt.westeurope.azurecontainer.io", 1883, "veraplus", "A2uhXG4GLOGfHp47daVA"), CancellationToken.None);//cleanSession
+            _mqttClient.ConnectAndSet();
             while (!stoppingToken.IsCancellationRequested)
             {
                 Device[] devices = _veraClient.Get<Device[]>();

@@ -1,10 +1,11 @@
 using MQTTnet;
 
 using MQTTnet.Client;
-
+using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Options;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace AgentV
 {
@@ -37,5 +38,9 @@ namespace AgentV
                 await mqttClient.PublishAsync(message, CancellationToken.None);
                 
          }
-    }
+
+        async internal void ConnectAndSet()
+        {
+            await mqttClient.ConnectAsync(this.SetConnectionOptions(false, "1234", "camotemqtt.westeurope.azurecontainer.io", 1883, "veraplus", "A2uhXG4GLOGfHp47daVA"), CancellationToken.None);//cleanSession        
+        }
 }
