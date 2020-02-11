@@ -1,3 +1,4 @@
+using AgentV.DTO;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -45,9 +46,9 @@ namespace AgentV
                 foreach (SchedulerItem element in schedulerList)
                 {
                     DateTime lastDateInMillis = element.LastDate.AddMilliseconds(element.Interval * 1000);
-                    if (lastDateInMillis > DateTime.Now)
+                    if (lastDateInMillis < DateTime.Now)
                     {
-                        Status status = _apiClient.GetStatusById(element.Id);
+                        DeviceStatus status = _apiClient.GetStatusById(element.Id);
                         _mqttManager.Publish(_agentVeraSettings.topic + topicSubscription, JsonConvert.SerializeObject(status));
                         _scheduler.ChangeLastDate(element.Id);
                     }

@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using AgentV.DTO;
 
 namespace AgentV
 {
@@ -56,13 +57,13 @@ namespace AgentV
             return this.Get<Device[]>(_constantUserData, _constantGetDevices);
         }
 
-        public Status[] GetStatus()
+        public Status GetStatus()
         {
-            return this.Get<Status[]>(_constantStatus);
+            return this.Get<Status>(_constantStatus);
         }
-        public Status GetStatusById(int deviceNum)
+        public DeviceStatus GetStatusById(int deviceNum)
         {
-            return this.Get<Status>(_constantStatus + "&DeviceNum=" + deviceNum);
+            return this.Get<DeviceStatus>(_constantStatus + "&DeviceNum=" + deviceNum);
         }
     }
 }

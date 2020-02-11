@@ -1,3 +1,4 @@
+using AgentV.DTO;
 using MQTTnet;
 
 using MQTTnet.Client;
@@ -51,11 +52,11 @@ namespace AgentV
                                 this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(devices));
                                 break;
                             case "GetStatus":
-                                Status[] statuses = apiClient.GetStatus();
+                                Status statuses = apiClient.GetStatus();
                                 this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(statuses));
                                 break;
                             case "GetStatusById":
-                                Status status = apiClient.GetStatusById(messageObject.parameters[0].value);
+                                DeviceStatus status = apiClient.GetStatusById(messageObject.parameters[0].value);
                                 this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(status));
                                 break;
                             case "ScheduleStatus":
