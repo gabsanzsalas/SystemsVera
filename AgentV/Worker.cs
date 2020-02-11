@@ -17,10 +17,6 @@ namespace AgentV
         private AgentVeraSettings _agentVeraSettings;
         private Scheduler _scheduler;
         private List<SchedulerItem> schedulerList;
-        private SchedulerItem item = null;
-        private DateTime lastDate;
-        private int id;
-        private int intervall;
 
         public Worker(ILogger<Worker> logger, ApiClient veraClient, MqttManager mqttManager, AgentVeraSettings agentVeraSettings, Scheduler scheduler)
         {
@@ -43,21 +39,17 @@ namespace AgentV
                  }
                  */
 
-            while (true)
+            while (!stoppingToken.IsCancellationRequested)
             {
                 schedulerList = _scheduler.GetScheduler();
                 foreach (SchedulerItem element in schedulerList)
                 {
-                    item = element;
-                    lastDate = item.LastDate;
-                    id = item.Id;
-                    intervall = item.Interval;
-                    DateTime lastDateInMillis = lastDate.AddMilliseconds(intervall * 1000);// ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                    //double NowInMillis = DateTime.Now; //ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                    if (lastDateInMillis < DateTime.Now)
+                    DateTime lastDateInMillis = element.LastDate.AddMilliseconds(element.Interval * 1000);
+                    if (lastDateInMillis > DateTime.Now)
                     {
-                        //lastDate = DateTime.Now;
-                        _scheduler.AddScheduleItem(id, intervall);
+                        Status status = _apiClient.GetStatusById(element.Id);
+                        _mqttManager.Publish(_agentVeraSettings.topic + topicSubscription, JsonConvert.SerializeObject(status));
+                        _scheduler.ChangeLastDate(element.Id);
                     }
                 }
             }

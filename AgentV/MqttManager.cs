@@ -51,11 +51,15 @@ namespace AgentV
                                 this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(devices));
                                 break;
                             case "GetStatus":
-                                Status[] status = apiClient.GetStatus();
+                                Status[] statuses = apiClient.GetStatus();
+                                this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(statuses));
+                                break;
+                            case "GetStatusById":
+                                Status status = apiClient.GetStatusById(messageObject.parameters[0].value);
                                 this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(status));
                                 break;
                             case "ScheduleStatus":
-                                scheduler.AddScheduleItem(messageObject.parameters.deviceId, messageObject.parameters.interval);
+                                scheduler.AddScheduleItem(messageObject.parameters[0].value, messageObject.parameters[1].value);
                                 break;
                         }
 
@@ -111,13 +115,13 @@ namespace AgentV
     public class Message
     {
         public string commando { get; set; }
-        public Parameters parameters { get; set; }
+        public Parameters[] parameters { get; set; }
     }
 
     public class Parameters
     {
-        public int deviceId { get; set; }
-        public int interval { get; set; }
+        public string name { get; set; }
+        public int value { get; set; }
 
     }
 }

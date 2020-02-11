@@ -22,7 +22,7 @@ namespace AgentV
                 string json = file.ReadToEnd();
                 scheduler = JsonConvert.DeserializeObject<List<SchedulerItem>>(json);
             }
-            if (!scheduler.Any())
+            if (scheduler == null)
                 scheduler = new List<SchedulerItem>();
         }
 

@@ -60,5 +60,9 @@ namespace AgentV
         {
             return this.Get<Status[]>(_constantStatus);
         }
+        public Status GetStatusById(int deviceNum)
+        {
+            return this.Get<Status>(_constantStatus + "&DeviceNum=" + deviceNum);
+        }
     }
 }
