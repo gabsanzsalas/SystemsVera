@@ -12,15 +12,15 @@ namespace AgentV
 
         public Scheduler()
         {
-            InitSchedulerList();
-        }
-
-        private void InitSchedulerList()
-        {
             using (StreamReader file = new StreamReader("schedule.json"))
             {
                 string json = file.ReadToEnd();
-                scheduler = JsonConvert.DeserializeObject<List<SchedulerItem>>(json);
+                try
+                {
+                    scheduler = JsonConvert.DeserializeObject<List<SchedulerItem>>(json);
+                }
+                catch (Exception ex) {; }
+
             }
             if (scheduler == null)
                 scheduler = new List<SchedulerItem>();

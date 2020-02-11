@@ -104,12 +104,14 @@ namespace AgentV
 
         async internal void Connect()
         {
-            await mqttClient.ConnectAsync(mqttOptions, CancellationToken.None);
+            while (!mqttClient.IsConnected)
+            {
+                await mqttClient.ConnectAsync(mqttOptions, CancellationToken.None);
+            }
 
             var result = await mqttClient.SubscribeAsync(new TopicFilterBuilder()
                      .WithTopic(agentVeraSettings.topic + topicSubscription)
                      .WithAtLeastOnceQoS().Build());
-
         }
     }
 
