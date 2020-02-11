@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace AgentV
 {
@@ -17,7 +18,6 @@ namespace AgentV
         private MqttManager _mqttManager;
         private AgentVeraSettings _agentVeraSettings;
         private Scheduler _scheduler;
-        private List<SchedulerItem> schedulerList;
 
         public Worker(ILogger<Worker> logger, ApiClient veraClient, MqttManager mqttManager, AgentVeraSettings agentVeraSettings, Scheduler scheduler)
         {
@@ -42,10 +42,15 @@ namespace AgentV
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                schedulerList = _scheduler.GetScheduler();
-                foreach (SchedulerItem element in schedulerList)
+
+                foreach (SchedulerItem element in Scheduler.GetScheduler())
                 {
-                    DateTime lastDateInMillis = element.LastDate.AddMilliseconds(element.Interval * 1000);
+                    if (!Scheduler.GetLaunched().Any(x => x.Id.Equals(element.Id)))
+                        _scheduler.AddLaunchedItem(element.Id, element.CreationDate);
+
+                    LaunchedItem launched = Scheduler.GetLaunched().SingleOrDefault(x => x.Id.Equals(element.Id));
+
+                    DateTime lastDateInMillis = launched.LastDate.AddMilliseconds(element.Interval * 1000);
                     if (lastDateInMillis < DateTime.Now)
                     {
                         DeviceStatus status = _apiClient.GetStatusById(element.Id);
@@ -53,6 +58,7 @@ namespace AgentV
                         _scheduler.ChangeLastDate(element.Id);
                     }
                 }
+                await Task.Delay(1000);
             }
         }
     }

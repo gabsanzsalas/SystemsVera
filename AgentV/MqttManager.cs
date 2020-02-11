@@ -2,6 +2,7 @@ using AgentV.DTO;
 using MQTTnet;
 
 using MQTTnet.Client;
+using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Options;
 using Newtonsoft.Json;
 using System;
@@ -25,7 +26,7 @@ namespace AgentV
         {
             this.agentVeraSettings = agentVeraSettings;
             SetConnectionOptions();
-            mqttClient = mqttFactory.CreateMqttClient();
+            this.mqttClient = mqttFactory.CreateMqttClient();
             this.apiClient = apiClient;
             this.scheduler = scheduler;
             SubscribeMqttClientAsync();
@@ -36,7 +37,7 @@ namespace AgentV
 
         private async Task SubscribeMqttClientAsync()
         {
-            this.Connect();
+            await Connect();
             mqttClient.UseApplicationMessageReceivedHandler(e =>
             {
                 Task.Run(() =>
@@ -88,7 +89,14 @@ namespace AgentV
         public async void Publish(string topic, string payload)
         {
             if (!mqttClient.IsConnected)
-                Connect();
+            {
+                try
+                {
+                    await Connect();
+                }
+                catch (TaskCanceledException) {; }
+            }
+
 
 
             MqttApplicationMessage message = new MqttApplicationMessageBuilder()
@@ -102,16 +110,21 @@ namespace AgentV
 
         }
 
-        async internal void Connect()
+        async internal Task<MqttClientAuthenticateResult> Connect()
         {
-            while (!mqttClient.IsConnected)
+            var connection = new MqttClientAuthenticateResult();
+
+            while (!this.mqttClient.IsConnected)
             {
-                await mqttClient.ConnectAsync(mqttOptions, CancellationToken.None);
+                connection = await mqttClient.ConnectAsync(mqttOptions, CancellationToken.None);
+
             }
 
             var result = await mqttClient.SubscribeAsync(new TopicFilterBuilder()
                      .WithTopic(agentVeraSettings.topic + topicSubscription)
                      .WithAtLeastOnceQoS().Build());
+
+            return connection;
         }
     }
 
