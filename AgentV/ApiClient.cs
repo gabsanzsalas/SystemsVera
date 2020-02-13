@@ -13,6 +13,8 @@ namespace AgentV
         private const string _constantGetDevices = "devices";
         private const string _constantUserData = "user_data";
         private const string _constantStatus = "status";
+
+        public static string _constantStatusById = "status&DeviceNum=";
         private readonly HttpClient _httpClient;
 
         private AgentVeraSettings agentVeraSettings;
@@ -34,7 +36,7 @@ namespace AgentV
                 , HttpCompletionOption.ResponseHeadersRead).Result;
             var data = response.Content.ReadAsStringAsync().Result;
 
-            if (!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode || data.Equals("Bad Device"))
                 throw new Exception(data);
 
             return ConvertResult<T>(data, objectkey);
@@ -64,6 +66,11 @@ namespace AgentV
         public DeviceStatus GetStatusById(int deviceNum)
         {
             return this.Get<DeviceStatus>(_constantStatus + "&DeviceNum=" + deviceNum);
+        }
+
+        public dynamic GetGeneric(string uri)
+        {
+            return this.Get<dynamic>(uri);
         }
     }
 }

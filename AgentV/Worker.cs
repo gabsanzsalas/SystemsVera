@@ -53,7 +53,7 @@ namespace AgentV
                     DateTime lastDateInMillis = launched.LastDate.AddMilliseconds(element.Interval * 1000);
                     if (lastDateInMillis < DateTime.Now)
                     {
-                        DeviceStatus status = _apiClient.GetStatusById(element.Id);
+                        dynamic status = _apiClient.GetGeneric(ApiClient._constantStatusById + element.Id);
                         _mqttManager.Publish(_agentVeraSettings.topic + topicSubscription, JsonConvert.SerializeObject(status));
                         _scheduler.ChangeLastDate(element.Id);
                     }

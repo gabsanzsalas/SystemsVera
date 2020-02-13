@@ -42,13 +42,28 @@ namespace AgentV
 
         public void AddScheduleItem(int id, int interval)
         {
+            if (scheduler.Any(x => x.Id == id))
+                scheduler.Remove(scheduler.Find(x => x.Id == id));
+
             scheduler.Add(new SchedulerItem() { Id = id, Interval = interval, CreationDate = DateTime.Now });
+
             WriteToScheduleFile();
+        }
+
+        public void CancelScheduleItem(int id)
+        {
+            scheduler.Remove(scheduler.Find(x => x.Id == id));
+            WriteToScheduleFile();
+        }
+        public void CancelLaunchedItem(int id)
+        {
+            launched.Remove(launched.Find(x => x.Id == id));
+            WriteToLaunchedFile();
         }
 
         public void AddLaunchedItem(int id, DateTime creationDate)
         {
-            launched.Add(new LaunchedItem() { Id = id, LastDate = creationDate});
+            launched.Add(new LaunchedItem() { Id = id, LastDate = creationDate });
             WriteToLaunchedFile();
         }
 
@@ -77,6 +92,16 @@ namespace AgentV
             }
         }
 
+        public static List<ScheduleStatus> GetScheduleStatus()
+        {
+            List<ScheduleStatus> ret = new List<ScheduleStatus>();
+            foreach (SchedulerItem item in scheduler)
+            {
+                ret.Add(new ScheduleStatus() { Id = item.Id, Interval = item.Interval, CreationDate = item.CreationDate, LastDate = launched.Where<LaunchedItem>(x => x.Id == item.Id).FirstOrDefault().LastDate });
+            }
+            return ret;
+        }
+
         public static List<SchedulerItem> GetScheduler()
         {
             return scheduler;
@@ -93,6 +118,14 @@ namespace AgentV
         public int Id { get; set; }
         public int Interval { get; set; }
         public DateTime CreationDate { get; set; }
+    }
+
+    public class ScheduleStatus
+    {
+        public int Id { get; set; }
+        public int Interval { get; set; }
+        public DateTime CreationDate { get; set; }
+        public DateTime LastDate { get; set; }
     }
 
     public class LaunchedItem

@@ -6,6 +6,7 @@ using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Options;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,11 +58,20 @@ namespace AgentV
                                 this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(statuses));
                                 break;
                             case "GetStatusById":
-                                DeviceStatus status = apiClient.GetStatusById(messageObject.parameters[0].value);
+                                dynamic status = apiClient.GetGeneric(ApiClient._constantStatusById + messageObject.parameters[0].value);
                                 this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(status));
                                 break;
                             case "ScheduleStatus":
+                                List<ScheduleStatus> scheduleStatus = Scheduler.GetScheduleStatus();
+                                this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(scheduleStatus));
+                                break;
+                            case "AddSchedule":
+                                // To look if Device with this Id exists
+                                apiClient.GetGeneric(ApiClient._constantStatusById + messageObject.parameters[0].value);
                                 scheduler.AddScheduleItem(messageObject.parameters[0].value, messageObject.parameters[1].value);
+                                break;
+                            case "CancelSchedule":
+                                scheduler.CancelScheduleItem(messageObject.parameters[0].value);
                                 break;
                         }
 
@@ -71,7 +81,7 @@ namespace AgentV
                     }
                     catch (Exception ex)
                     {
-
+                        this.Publish(agentVeraSettings.topic + topicPublish, JsonConvert.SerializeObject(ex.Message));
                     }
                 });
             });

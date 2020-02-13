@@ -52,7 +52,7 @@ namespace AgentV.DTO
 
     public class DeviceStatus
     {
-        public DeviceNum Device_Num { get; set; }
+        public DeviceNum Device_Num_18 { get; set; }
         public int Using_2G { get; set; }
         public int LoadTime { get; set; }
         public int DataVersion { get; set; }
